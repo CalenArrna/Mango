@@ -1,6 +1,8 @@
 import { useReducer } from "react";
+import { Container } from "react-smooth-dnd";
 import initialData from "../../initialBoardData";
-import { Container, Draggable } from "react-smooth-dnd";
+import Column from "./Column/Column.jsx";
+import Task from "./Task/Task.jsx";
 
 const boardReducer = (state, action) => {
   const { type, payload } = action;
@@ -11,22 +13,19 @@ const boardReducer = (state, action) => {
         addedIndex,
         payload: theMovingTask,
       } = payload.dropResult;
-      console.log(action);
+
       if (
         (removedIndex === null && addedIndex === null) ||
         removedIndex === addedIndex
       ) {
-        console.log("Returning original state...");
         return state;
       }
 
       const updatedColumnsList = [...state.columns];
       updatedColumnsList.forEach((c) => {
         if (c.id === payload.columnId) {
-          console.log("Column ID matched");
           let nTasks = [...c.tasks];
           if (removedIndex !== null) {
-            console.log("Removing the task to list: ", theMovingTask);
             nTasks = nTasks.filter((task) => task.id !== theMovingTask.id);
           }
 
@@ -34,14 +33,11 @@ const boardReducer = (state, action) => {
             addedIndex !== null &&
             !nTasks.find((task) => task.id === theMovingTask.id)
           ) {
-            console.log("Adding the task to list: ", theMovingTask);
             nTasks.splice(addedIndex, 0, theMovingTask);
           }
           c.tasks = nTasks;
         }
       });
-
-      console.log("AFTER LOOP new colmuns list...", updatedColumnsList);
 
       return { ...state, columns: updatedColumnsList };
     }
@@ -73,32 +69,20 @@ function Board() {
           dispatch({ type: "move_column", payload: dropResult })
         }
       >
-        {state.columns.map((column) => {
+        {state.columns.map((column, index) => {
           return (
-            <Draggable className="p-2 my-3" key={column.id}>
-              <h2>{column.title}</h2>
-              <Container
-                orientation="vertical"
-                groupName="taskLists"
-                onDrop={(dropResult) =>
-                  dispatch({
-                    type: "move_task",
-                    payload: { columnId: column.id, dropResult },
-                  })
-                }
-                getChildPayload={(index) =>
-                  state.columns.find((col) => col.id === column.id).tasks[index]
-                }
-              >
-                {column.tasks.map((task) => {
-                  return (
-                    <Draggable key={task.id}>
-                      <span>{task.content}</span>
-                    </Draggable>
-                  );
-                })}
-              </Container>
-            </Draggable>
+            <Column
+              key={column.id}
+              getTask={(index) =>
+                state.columns.find((col) => col.id === column.id).tasks[index]
+              }
+              column={column}
+              dispatch={dispatch}
+            >
+              {column.tasks.map((task) => (
+                <Task key={task.id} task={task} />
+              ))}
+            </Column>
           );
         })}
       </Container>
