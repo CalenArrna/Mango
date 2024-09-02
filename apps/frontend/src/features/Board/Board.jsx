@@ -61,7 +61,7 @@ function Board() {
   const [state, dispatch] = useReducer(boardReducer, initialData);
 
   return (
-    <div>
+    <div className="scroll-smooth">
       <h1>{state.title}</h1>
       <Container
         orientation="horizontal"
