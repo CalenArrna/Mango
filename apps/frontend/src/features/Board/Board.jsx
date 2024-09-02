@@ -61,9 +61,10 @@ function Board() {
   const [state, dispatch] = useReducer(boardReducer, initialData);
 
   return (
-    <div className="scroll-smooth">
-      <h1>{state.title}</h1>
+    <div className="h-full overflow-scroll">
+      <h1 className="text-center mb-4">{state.title}</h1>
       <Container
+        className="flex h-full overflow-x-auto"
         orientation="horizontal"
         onDrop={(dropResult) =>
           dispatch({ type: "move_column", payload: dropResult })

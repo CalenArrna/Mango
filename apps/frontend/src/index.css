@@ -25,3 +25,9 @@ body {
   font-weight: 400;
   line-height: 1.6;
 }
+
+/* Make sure the container and draggable wrappers take full height */
+.smooth-dnd-container {
+  height: 80dvh;
+  border-spacing: 1rem;
+}

@@ -3,9 +3,9 @@ import Footer from "./Footer";
 
 function AppLayout({ children }) {
   return (
-    <div className="grid h-screen grid-rows-[auto_1fr_auto]">
+    <div className="flex justify-between h-screen flex-col">
       <Header />
-      <div>{children}</div>
+      <div className="p-4 flex-1 overflow-x-auto">{children}</div>
       <Footer />
     </div>
   );
