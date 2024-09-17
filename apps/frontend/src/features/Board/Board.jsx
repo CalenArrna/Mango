@@ -3,6 +3,7 @@ import { Container } from "react-smooth-dnd";
 import initialData from "../../initialBoardData";
 import Column from "./Column/Column.jsx";
 import Task from "./Task/Task.jsx";
+import AddButton from "../../ui/AddButton.jsx";
 
 const boardReducer = (state, action) => {
   const { type, payload } = action;
@@ -51,14 +52,53 @@ const boardReducer = (state, action) => {
 
       return { ...state, columns: newColumnOrder };
     }
+    case "add_task": {
+      return {
+        ...state,
+        columns: state.columns.map((column) => {
+          if (column.id === payload.columnId) {
+            return {
+              ...column,
+              tasks: [...column.tasks, payload.newTask],
+            };
+          }
+          return column;
+        }),
+      };
+    }
+    case "edit_task": {
+      return state;
+    }
+    case "delete_task": {
+      return state;
+    }
+    case "add_column": {
+      return { ...state, columns: [...state.columns, payload] };
+    }
+    case "edit_column": {
+      return state;
+    }
+    case "delete_column": {
+      return state;
+    }
 
     default:
       return state;
   }
 };
 
+const defaultColumn = {
+  id: "column-11",
+  title: "New Column",
+  tasks: [],
+};
+
 function Board() {
   const [state, dispatch] = useReducer(boardReducer, initialData);
+
+  function onAddColumn() {
+    dispatch({ type: "add_column", payload: defaultColumn });
+  }
 
   return (
     <div className="h-full overflow-scroll">
@@ -73,19 +113,22 @@ function Board() {
         {state.columns.map((column, index) => {
           return (
             <Column
-              key={column.id}
+              key={index}
               getTask={(index) =>
                 state.columns.find((col) => col.id === column.id).tasks[index]
               }
               column={column}
               dispatch={dispatch}
             >
-              {column.tasks.map((task) => (
-                <Task key={task.id} task={task} />
+              {column.tasks.map((task, index) => (
+                <Task key={index} task={task} />
               ))}
             </Column>
           );
         })}
+        <AddButton onClick={onAddColumn} type="flat">
+          ➕
+        </AddButton>
       </Container>
     </div>
   );
