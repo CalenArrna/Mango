@@ -11,6 +11,7 @@ import { User } from './users/user.entity';
 import { Board } from './boards/board.entity';
 import { BoardColumn } from './columns/column.entity';
 import { Task } from './tasks/task.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { Task } from './tasks/task.entity';
     BoardsModule,
     ColumnsModule,
     TasksModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
