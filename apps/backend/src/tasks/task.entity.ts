@@ -12,6 +12,8 @@ export class Task {
   @Column()
   description: string;
 
-  @ManyToOne(() => BoardColumn, (column) => column.tasks)
+  @ManyToOne(() => BoardColumn, (column) => column.tasks, {
+    onDelete: 'CASCADE',
+  })
   column: BoardColumn;
 }

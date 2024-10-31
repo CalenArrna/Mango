@@ -16,9 +16,12 @@ export class Board {
   @Column()
   title: string;
 
-  @ManyToOne(() => User, (user) => user.boards)
+  @ManyToOne(() => User, (user) => user.boards, { onDelete: 'CASCADE' })
   user: User;
 
-  @OneToMany(() => BoardColumn, (boardColumn) => boardColumn.board)
+  @OneToMany(() => BoardColumn, (boardColumn) => boardColumn.board, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   columns: BoardColumn[];
 }

@@ -12,6 +12,9 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(() => Board, (board) => board.user)
+  @OneToMany(() => Board, (board) => board.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   boards: Board[];
 }
