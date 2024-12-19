@@ -6,39 +6,54 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ColumnsService } from './columns.service';
 import { BoardColumn } from './column.entity';
+import { CreateColumnDto } from 'src/dtos/create-column.dto';
+import { ResponseColumnDto } from 'src/dtos/response-column.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@Controller('columns')
+@UseGuards(JwtAuthGuard)
+@Controller('boards/:boardId/columns')
 export class ColumnsController {
-  constructor(private readonly boardsService: ColumnsService) {}
+  constructor(private readonly columnService: ColumnsService) {}
 
   @Post()
-  create(@Body() board: Partial<BoardColumn>): Promise<BoardColumn> {
-    return this.boardsService.create(board);
+  create(
+    @Body() column: CreateColumnDto,
+    @Param('boardId') boardId: string,
+  ): Promise<ResponseColumnDto> {
+    return this.columnService.create(boardId, column);
   }
 
   @Get()
-  findAll(): Promise<BoardColumn[]> {
-    return this.boardsService.findAll();
+  findAll(@Param('boardId') boardId: string): Promise<BoardColumn[]> {
+    return this.columnService.findAll(boardId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<BoardColumn> {
-    return this.boardsService.findOne(id);
+  findOne(
+    @Param('id') id: string,
+    @Param('boardId') boardId: string,
+  ): Promise<BoardColumn> {
+    return this.columnService.findOne(boardId, id);
   }
 
   @Put(':id')
   update(
     @Param('id') id: string,
-    @Body() board: Partial<BoardColumn>,
+    @Param('boardId') boardId: string,
+    @Body() columnData: Partial<BoardColumn>,
   ): Promise<BoardColumn> {
-    return this.boardsService.update(id, board);
+    return this.columnService.update(boardId, id, columnData);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.boardsService.remove(id);
+  remove(
+    @Param('id') id: string,
+    @Param('boardId') boardId: string,
+  ): Promise<void> {
+    return this.columnService.remove(boardId, id);
   }
 }

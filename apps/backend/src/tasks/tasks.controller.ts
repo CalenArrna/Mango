@@ -6,36 +6,53 @@ import {
   Delete,
   Param,
   Body,
+  UseGuards,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Task } from './task.entity';
+import { CreateTaskDto } from 'src/dtos/create-task.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@Controller('tasks')
+@UseGuards(JwtAuthGuard)
+@Controller('boards/:boardId/columns/:columnId/tasks')
 export class TasksController {
   constructor(private readonly taskService: TasksService) {}
 
   @Post()
-  create(@Body() task: Partial<Task>): Promise<Task> {
-    return this.taskService.create(task);
+  create(
+    @Param('columnId') columnId: string,
+    @Body() task: CreateTaskDto,
+  ): Promise<Task> {
+    return this.taskService.create(columnId, task);
   }
 
   @Get()
-  findAll(): Promise<Task[]> {
-    return this.taskService.findAll();
+  findAll(@Param('columnId') columnId: string): Promise<Task[]> {
+    return this.taskService.findAll(columnId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Task> {
-    return this.taskService.findOne(id);
+  findOne(
+    @Param('columnId') columnId: string,
+    @Param('id') id: string,
+  ): Promise<Task> {
+    return this.taskService.findOne(columnId, id);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() task: Partial<Task>): Promise<Task> {
-    return this.taskService.update(id, task);
+  update(
+    @Param('columnId') columnId: string,
+    @Param('id') id: string,
+    @Body() updates: Partial<Task>,
+  ): Promise<Task> {
+    return this.taskService.update(columnId, id, updates);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.taskService.remove(id);
+  remove(
+    @Param('columnId') columnId: string,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.taskService.remove(columnId, id);
   }
 }

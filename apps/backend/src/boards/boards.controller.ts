@@ -16,12 +16,12 @@ import { CreateBoardDto } from 'src/dtos/create-board.dto';
 import { ResponseBoardDto } from 'src/dtos/response-board.dto';
 import { plainToInstance } from 'class-transformer';
 
+@UseGuards(JwtAuthGuard)
 @Controller('boards')
 export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(
     @Request() req,
     @Body() createBoardDto: CreateBoardDto,
@@ -34,19 +34,16 @@ export class BoardsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   findAll(): Promise<Board[]> {
     return this.boardsService.findAll();
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string): Promise<Board> {
     return this.boardsService.findOne(id);
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
   update(
     @Param('id') id: string,
     @Body() board: Partial<Board>,
@@ -55,7 +52,6 @@ export class BoardsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string): Promise<void> {
     return this.boardsService.remove(id);
   }
