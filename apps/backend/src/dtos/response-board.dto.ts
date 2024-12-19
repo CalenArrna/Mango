@@ -1,4 +1,5 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+import { ResponseColumnDto } from './response-column.dto';
 
 export class ResponseBoardDto {
   @Expose()
@@ -8,5 +9,6 @@ export class ResponseBoardDto {
   title: string;
 
   @Expose()
-  columns: [];
+  @Type(() => ResponseColumnDto)
+  columns: ResponseColumnDto[];
 }

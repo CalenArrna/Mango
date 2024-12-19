@@ -13,7 +13,7 @@ export class BoardsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async create(createBoardDto: CreateBoardDto, userId: string): Promise<Board> {
+  async create(userId: string, createBoardDto: CreateBoardDto): Promise<Board> {
     const user = await this.usersService.findOne(userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -22,20 +22,37 @@ export class BoardsService {
     return this.boardRepository.save(board);
   }
 
-  async findAll(): Promise<Board[]> {
-    return this.boardRepository.find({ relations: ['user'] });
+  async findAll(userId: string): Promise<Board[]> {
+    return this.boardRepository.find({
+      where: { user: { id: userId } },
+      select: ['id', 'title'], // Return minimal information
+    });
   }
 
-  async findOne(id: string): Promise<Board> {
-    return this.boardRepository.findOne({ where: { id }, relations: ['user'] });
+  async findOne(userId: string, id: string): Promise<Board> {
+    const board = this.boardRepository.findOne({
+      where: { id, user: { id: userId } }, // Verify ownership current implementation
+      relations: ['columns', 'columns.tasks'], // Fetch columns and tasks
+    });
+
+    if (!board) {
+      throw new NotFoundException('Board not found or access denied');
+    }
+
+    return board;
   }
 
-  async update(id: string, board: Partial<Board>): Promise<Board> {
+  async update(
+    userId: string,
+    id: string,
+    board: Partial<Board>,
+  ): Promise<Board> {
     await this.boardRepository.update(id, board);
-    return this.findOne(id);
+    return this.findOne(userId, id);
   }
 
-  async remove(id: string): Promise<void> {
-    await this.boardRepository.delete(id);
+  async remove(userId: string, id: string): Promise<void> {
+    const board = await this.findOne(userId, id);
+    await this.boardRepository.delete(board.id);
   }
 }

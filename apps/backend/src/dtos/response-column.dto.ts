@@ -1,5 +1,5 @@
-import { Expose } from 'class-transformer';
-import { Task } from 'src/tasks/task.entity';
+import { Expose, Type } from 'class-transformer';
+import { ResponseTaskDto } from './response-task.dto';
 
 export class ResponseColumnDto {
   @Expose()
@@ -9,5 +9,6 @@ export class ResponseColumnDto {
   title: string;
 
   @Expose()
-  tasks: Array<Task>;
+  @Type(() => ResponseTaskDto)
+  tasks: ResponseTaskDto[];
 }

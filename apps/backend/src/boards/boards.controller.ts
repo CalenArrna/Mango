@@ -27,32 +27,43 @@ export class BoardsController {
     @Body() createBoardDto: CreateBoardDto,
   ): Promise<ResponseBoardDto> {
     const userId = req.user.userId;
-    const board = await this.boardsService.create(createBoardDto, userId);
+    const board = await this.boardsService.create(userId, createBoardDto);
     return plainToInstance(ResponseBoardDto, board, {
       excludeExtraneousValues: true,
     });
   }
 
   @Get()
-  findAll(): Promise<Board[]> {
-    return this.boardsService.findAll();
+  findAll(@Request() req): Promise<Board[]> {
+    const userId = req.user.userId;
+    return this.boardsService.findAll(userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Board> {
-    return this.boardsService.findOne(id);
+  async findOne(
+    @Request() req,
+    @Param('id') id: string,
+  ): Promise<ResponseBoardDto> {
+    const userId = req.user.userId;
+    const board = await this.boardsService.findOne(userId, id);
+    return plainToInstance(ResponseBoardDto, board, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Put(':id')
   update(
     @Param('id') id: string,
+    @Request() req,
     @Body() board: Partial<Board>,
   ): Promise<Board> {
-    return this.boardsService.update(id, board);
+    const userId = req.user.userId;
+    return this.boardsService.update(userId, id, board);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.boardsService.remove(id);
+  remove(@Param('id') id: string, @Request() req): Promise<void> {
+    const userId = req.user.userId;
+    return this.boardsService.remove(userId, id);
   }
 }
