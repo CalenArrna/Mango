@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Board } from './board.entity';
@@ -25,34 +29,45 @@ export class BoardsService {
   async findAll(userId: string): Promise<Board[]> {
     return this.boardRepository.find({
       where: { user: { id: userId } },
-      select: ['id', 'title'], // Return minimal information
+      select: ['id', 'title'],
     });
   }
 
-  async findOne(userId: string, id: string): Promise<Board> {
-    const board = this.boardRepository.findOne({
-      where: { id, user: { id: userId } }, // Verify ownership current implementation
-      relations: ['columns', 'columns.tasks'], // Fetch columns and tasks
-    });
-
-    if (!board) {
-      throw new NotFoundException('Board not found or access denied');
-    }
-
-    return board;
+  async findOne(userId: string, boardId: string): Promise<Board> {
+    return this.validateOwnership(userId, boardId);
   }
 
   async update(
     userId: string,
-    id: string,
-    board: Partial<Board>,
+    boardId: string,
+    updatedData: Partial<Board>,
   ): Promise<Board> {
-    await this.boardRepository.update(id, board);
-    return this.findOne(userId, id);
+    await this.validateOwnership(userId, boardId);
+    await this.boardRepository.update(boardId, updatedData);
+    return this.findOne(userId, boardId);
   }
 
-  async remove(userId: string, id: string): Promise<void> {
-    const board = await this.findOne(userId, id);
+  async remove(userId: string, boardId: string): Promise<void> {
+    const board = await this.validateOwnership(userId, boardId);
     await this.boardRepository.delete(board.id);
+  }
+
+  async validateOwnership(userId: string, boardId: string): Promise<Board> {
+    const board = await this.boardRepository.findOne({
+      where: { id: boardId, user: { id: userId } },
+      relations: ['user', 'columns', 'columns.tasks'],
+    });
+
+    if (!board) {
+      throw new NotFoundException('Board not found! Not exists!');
+    }
+
+    if (board.user.id !== userId) {
+      throw new ForbiddenException(
+        "You don't have access to this board! Please log in with proper user!",
+      );
+    }
+
+    return board;
   }
 }

@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Task } from './task.entity';
@@ -21,38 +22,40 @@ export class TasksController {
   @Post()
   create(
     @Param('columnId') columnId: string,
+    @Request() req,
     @Body() task: CreateTaskDto,
   ): Promise<Task> {
     return this.taskService.create(columnId, task);
   }
 
-  @Get()
-  findAll(@Param('columnId') columnId: string): Promise<Task[]> {
-    return this.taskService.findAll(columnId);
-  }
-
   @Get(':id')
   findOne(
     @Param('columnId') columnId: string,
+    @Request() req,
     @Param('id') id: string,
   ): Promise<Task> {
-    return this.taskService.findOne(columnId, id);
+    const userId = req.user.userId;
+    return this.taskService.findOne(userId, columnId, id);
   }
 
   @Put(':id')
   update(
+    @Request() req,
     @Param('columnId') columnId: string,
     @Param('id') id: string,
     @Body() updates: Partial<Task>,
   ): Promise<Task> {
-    return this.taskService.update(columnId, id, updates);
+    const userId = req.user.userId;
+    return this.taskService.update(userId, columnId, id, updates);
   }
 
   @Delete(':id')
   remove(
+    @Request() req,
     @Param('columnId') columnId: string,
     @Param('id') id: string,
   ): Promise<void> {
-    return this.taskService.remove(columnId, id);
+    const userId = req.user.userId;
+    return this.taskService.remove(userId, columnId, id);
   }
 }

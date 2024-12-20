@@ -42,28 +42,31 @@ export class BoardsController {
   @Get(':id')
   async findOne(
     @Request() req,
-    @Param('id') id: string,
+    @Param('id') boardId: string,
   ): Promise<ResponseBoardDto> {
     const userId = req.user.userId;
-    const board = await this.boardsService.findOne(userId, id);
+    const board = await this.boardsService.findOne(userId, boardId);
     return plainToInstance(ResponseBoardDto, board, {
       excludeExtraneousValues: true,
     });
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param('id') boardId: string,
     @Request() req,
-    @Body() board: Partial<Board>,
-  ): Promise<Board> {
+    @Body() updatedData: Partial<Board>,
+  ): Promise<ResponseBoardDto> {
     const userId = req.user.userId;
-    return this.boardsService.update(userId, id, board);
+    const board = await this.boardsService.update(userId, boardId, updatedData);
+    return plainToInstance(ResponseBoardDto, board, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req): Promise<void> {
+  remove(@Param('id') boardId: string, @Request() req): Promise<void> {
     const userId = req.user.userId;
-    return this.boardsService.remove(userId, id);
+    return this.boardsService.remove(userId, boardId);
   }
 }

@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ColumnsService } from './columns.service';
 import { BoardColumn } from './column.entity';
@@ -22,38 +23,50 @@ export class ColumnsController {
   @Post()
   create(
     @Body() column: CreateColumnDto,
+    @Request() req,
     @Param('boardId') boardId: string,
   ): Promise<ResponseColumnDto> {
-    return this.columnService.create(boardId, column);
+    const userId = req.user.userId;
+    return this.columnService.create(userId, boardId, column);
   }
 
   @Get()
-  findAll(@Param('boardId') boardId: string): Promise<BoardColumn[]> {
-    return this.columnService.findAll(boardId);
+  findAll(
+    @Param('boardId') boardId: string,
+    @Request() req,
+  ): Promise<BoardColumn[]> {
+    const userId = req.user.userId;
+    return this.columnService.findAll(userId, boardId);
   }
 
   @Get(':id')
   findOne(
+    @Request() req,
     @Param('id') id: string,
     @Param('boardId') boardId: string,
   ): Promise<BoardColumn> {
-    return this.columnService.findOne(boardId, id);
+    const userId = req.user.userId;
+    return this.columnService.findOne(userId, boardId, id);
   }
 
   @Put(':id')
   update(
+    @Request() req,
     @Param('id') id: string,
     @Param('boardId') boardId: string,
     @Body() columnData: Partial<BoardColumn>,
   ): Promise<BoardColumn> {
-    return this.columnService.update(boardId, id, columnData);
+    const userId = req.user.userId;
+    return this.columnService.update(userId, boardId, id, columnData);
   }
 
   @Delete(':id')
   remove(
+    @Request() req,
     @Param('id') id: string,
     @Param('boardId') boardId: string,
   ): Promise<void> {
-    return this.columnService.remove(boardId, id);
+    const userId = req.user.userId;
+    return this.columnService.remove(userId, boardId, id);
   }
 }
