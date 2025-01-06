@@ -9,10 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './user.entity';
 import { plainToInstance } from 'class-transformer';
 import { ResponseUserDto } from 'src/dtos/response-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { UpdateUserDto } from 'src/dtos/update-user.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -36,13 +36,16 @@ export class UsersController {
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
-    @Body() user: Partial<User>,
+    @Body() user: UpdateUserDto,
     @Request() req,
-  ): Promise<User> {
+  ): Promise<ResponseUserDto> {
     const currentUserId = req.user.userId;
-    return this.usersService.update(id, user, currentUserId);
+    const updatedUser = await this.usersService.update(id, user, currentUserId);
+    return plainToInstance(ResponseUserDto, updatedUser, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Delete(':id')

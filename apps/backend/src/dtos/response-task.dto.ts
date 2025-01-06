@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { Priority } from 'src/tasks/enums';
 
 export class ResponseTaskDto {
   @Expose()
@@ -9,4 +10,7 @@ export class ResponseTaskDto {
 
   @Expose()
   description: string;
+
+  @Expose()
+  priority: Priority;
 }

@@ -1,11 +1,14 @@
 import Header from "./Header";
 import Footer from "./Footer";
+import { Outlet } from "react-router-dom";
 
-function AppLayout({ children }) {
+function AppLayout() {
   return (
     <div className="flex justify-between h-screen flex-col">
       <Header />
-      <div className="p-4 flex-1 overflow-x-auto">{children}</div>
+      <main className="p-4 flex-1 overflow-x-auto">
+        <Outlet />
+      </main>
       <Footer />
     </div>
   );

@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { BoardColumn } from 'src/columns/column.entity';
+import { Priority } from './enums';
 
 @Entity()
 export class Task {
@@ -11,6 +12,9 @@ export class Task {
 
   @Column()
   description: string;
+
+  @Column({ type: 'enum', enum: Priority, default: Priority.NONE })
+  priority: Priority;
 
   @ManyToOne(() => BoardColumn, (column) => column.tasks, {
     onDelete: 'CASCADE',

@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -22,10 +21,6 @@ export class AuthService {
     if (existingUser) {
       throw new BadRequestException('Email already in use! Please sign in!');
     }
-    Logger.debug(
-      `Value of things: ${email} and ${password} and bycrypt: ${bcrypt}`,
-      'REGISTER',
-    );
     const hashedPassword = await bcrypt.hash(password, 11);
     return this.usersService.create({ email, password: hashedPassword });
   }

@@ -1,4 +1,5 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Priority } from 'src/tasks/enums';
 
 export class CreateTaskDto {
   @IsString()
@@ -6,4 +7,8 @@ export class CreateTaskDto {
 
   @IsString()
   description: string;
+
+  @IsEnum(Priority)
+  @IsOptional()
+  priority?: Priority;
 }

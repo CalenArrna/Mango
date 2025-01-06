@@ -2,9 +2,11 @@ import {
   Controller,
   Post,
   Body,
+  Get,
   Request,
   UseGuards,
   Res,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -26,8 +28,24 @@ export class AuthController {
   ) {
     const user = await this.authService.validateUser(body.email, body.password);
     const token = await this.authService.login(user);
-    res.cookie('access_token', token.access_token, { httpOnly: true });
+    res.cookie('access_token', token.access_token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
     return { message: 'Login successful' };
+  }
+
+  @Post('logout')
+  logout(@Res() res: Response) {
+    res.clearCookie('access_token');
+    return { message: 'Logged out successfully' };
+  }
+
+  @Get('ping')
+  ping() {
+    Logger.debug('Ping is called.');
+    return { message: 'Server is up!' };
   }
 
   @UseGuards(JwtAuthGuard)

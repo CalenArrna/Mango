@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -6,6 +8,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import * as bcrypt from 'bcrypt';
+import { UpdateUserDto } from 'src/dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -37,12 +41,30 @@ export class UsersService {
 
   async update(
     userId: string,
-    user: Partial<User>,
+    user: UpdateUserDto,
     currentUserId: string,
   ): Promise<User> {
     if (userId !== currentUserId) {
       throw new ForbiddenException('You can only update your own profile!');
     }
+
+    if (!user.email && !user.password) {
+      throw new BadRequestException(
+        "Didn't provided any values! You should send at least a password or email to make a change!",
+      );
+    }
+
+    if (user.email && (await this.findByEmail(user.email))) {
+      throw new ConflictException(
+        'Provided email value is already in use! Try another one!',
+      );
+    }
+
+    if (user.password) {
+      const hashedPassword = await bcrypt.hash(user.password, 11);
+      user.password = hashedPassword;
+    }
+
     await this.userRepository.update(userId, user);
     return this.findOne(userId);
   }
